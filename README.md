@@ -1,4 +1,4 @@
-# Monocular Depth Estimation to Predict Digital Elevation Model of the Lunar Surface
+# Monocular Depth Estimation to Predict Topology of the Martian Surface
 
 ``` console
 sudo add-apt-repository ppa:deadsnakes/ppa
@@ -12,3 +12,12 @@ pip install -r requirements.txt
 ``` console
 nohup python scrape.py > download.log 2>&1 &
 ```
+
+``` console
+python splits/generate_splits.py
+```
+
+``` console
+nohup python train.py --model glpdepth --data_dir PATH --batch_size 8 > train.log 2>&1 &
+```
+

@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import rasterio as rio
 import requests
+import time
 
 from bs4 import BeautifulSoup
 from patchify import patchify
@@ -72,8 +73,9 @@ def split(image_path, model_path, output_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-p", "--patch_size", type=int, default=512, choices=[256, 512])
-    parser.add_argument("-s", "--step", type=int, default=384)
+    parser.add_argument("--save_dir", type=int, default=Path.cwd())
+    parser.add_argument("--patch_size", type=int, default=512, choices=[256, 512])
+    parser.add_argument("--step", type=int, default=384)
     args = parser.parse_args()
     
     patch_size = args.patch_size
@@ -82,6 +84,8 @@ if __name__ == "__main__":
     images = []
     models = []
     if not data_path.exists():
+        print(f"Scraping data from the website...")
+        
         orbits_soup = BeautifulSoup(requests.get(orbits_url).content, "html.parser")
         orbits_href = [orbits_url + a["href"] for a in orbits_soup.find_all("a")[1:]]
         orbits_soup = [BeautifulSoup(requests.get(url).content, "html.parser") for url in orbits_href]
@@ -98,7 +102,7 @@ if __name__ == "__main__":
                 images.append(images_href[0])
                 models.append(models_href[0])
         
-        df = pd.DataFrame({"observation": [x.split("/")[-2] for x in images], "image": images, "model": models}).sort_values(by="image")
+        df = pd.DataFrame({"name": [x.split("/")[-2] for x in images], "image": images, "model": models}).sort_values(by="image")
         df.to_csv(data_path, index=False)
     else:
         df = pd.read_csv(data_path)
@@ -111,18 +115,30 @@ if __name__ == "__main__":
         model_name = model.split("/")[-1]
         file_stem = image_name.split(".")[0]
 
-        output_dir = dataset_dir / observations
+        output_dir = dataset_dir / observation
         output_dir.mkdir(parents=True, exist_ok=True)
         image_path = output_dir / image_name
         model_path = output_dir / model_name
             
         if not image_path.exists():
-            print(f"Downloading {image_name}...")
-            download(image, image_path)
+            while(True):
+                try:
+                    print(f"Downloading {image_name}...")
+                    download(image, image_path)
+                    break
+                except:
+                    time.sleep(600)
+                    continue   
         
         if not model_path.exists():
-            print(f"Downloading {model_name}...")
-            download(model, model_path)
+            while(True):
+                try:
+                    print(f"Downloading {model_name}...")
+                    download(model, model_path)
+                    break
+                except:
+                    time.sleep(600)
+                    continue
         
         output_dir = image_path.parent / "tiles"
         if not output_dir.exists():
