@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from archs.glpdepth.mit import mit_b4
+from glpdepth.mit import mit_b4
 
 class GLPDepth(nn.Module):
     def __init__(self, max_depth=10.0, is_train=False):
@@ -9,19 +9,7 @@ class GLPDepth(nn.Module):
         self.max_depth = max_depth
 
         self.encoder = mit_b4()
-        # if is_train:            
-        #     ckpt_path = './code/models/weights/mit_b4.pth'
-        #     try:
-        #         load_checkpoint(self.encoder, ckpt_path, logger=None)
-        #     except:
-        #         import gdown
-        #         print("Download pre-trained encoder weights...")
-        #         id = '1BUtU42moYrOFbsMCE-LTTkUE-mrWnfG2'
-        #         url = 'https://drive.google.com/uc?id=' + id
-        #         output = './code/models/weights/mit_b4.pth'
-        #         gdown.download(url, output, quiet=False)
-
-
+        self.encoder.patch_first_conv(1)
 
         channels_in = [512, 320, 128]
         channels_out = 64

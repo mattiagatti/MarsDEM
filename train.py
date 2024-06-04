@@ -32,15 +32,17 @@ if __name__ == "__main__":
     model = Model(max_depth=700.0)
     datamodule = HiRISEDataModule(data_dir=args.data_dir, batch_size=args.batch_size)
 
-    trainer.fit(
-        model=model,
-        datamodule=datamodule,
-        ckpt_path=args.ckpt_path
-    )
-    
-    trainer.test(
-        model=model,
-        datamodule=datamodule
-    )
+    if args.train:
+        trainer.fit(
+            model=model,
+            datamodule=datamodule,
+            ckpt_path=args.ckpt_path
+        )
+    else:  
+        trainer.test(
+            model=model,
+            datamodule=datamodule,
+            ckpt_path=args.ckpt_path
+        )
 
 # nohup python train.py --model glpdepth --data_dir /home/super/datasets-nas/HiRISE --batch_size 8 > train.log 2>&1 &

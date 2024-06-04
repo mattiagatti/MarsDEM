@@ -412,7 +412,19 @@ class mit_b4(MixVisionTransformer):
         super(mit_b4, self).__init__(
             patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
             qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 8, 27, 3], sr_ratios=[8, 4, 2, 1],
-            drop_rate=0.0, drop_path_rate=0.1, in_chans=1)  # in_chans = 1 to let the model process grayscale images
+            drop_rate=0.0, drop_path_rate=0.1)
+    
+    def patch_first_conv(self, new_in_channels, default_in_channels=3):
+        # get first conv
+        for module in self.modules():
+            if isinstance(module, nn.Conv2d) and module.in_channels == default_in_channels:
+                break
+        
+        weight = module.weight.detach()
+        module.in_channels = new_in_channels
+        
+        new_weight = weight.sum(1, keepdim=True)
+        module.weight = nn.parameter.Parameter(new_weight)  
 
 
 class mit_b5(MixVisionTransformer):

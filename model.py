@@ -1,7 +1,7 @@
 import lightning.pytorch as pl
 import torch
 
-from archs.glpdepth.model import GLPDepth
+from glpdepth.model import GLPDepth
 from torchmetrics import MeanSquaredError, MeanAbsoluteError, MetricCollection
 from utils.criterion import SiLogLoss
 from utils.save import save_metrics
@@ -12,7 +12,7 @@ class Model(pl.LightningModule):
     def __init__(self, max_depth):
         super().__init__()
 
-        self.arch = GLPDepth(max_depth=max_depth)
+        self.model = GLPDepth(max_depth=max_depth)
 
         self.lr = 1e-4
         self.loss_fn = SiLogLoss()
@@ -26,7 +26,7 @@ class Model(pl.LightningModule):
         })
 
     def forward(self, image):
-        pred = self.arch(image)
+        pred = self.model(image)
         return pred
 
     def training_step(self, batch, batch_idx):
