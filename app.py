@@ -23,13 +23,13 @@ def load_model(path):
     return model
 
 
-def generate_mesh(dtm, image, image_path, quality):
+def generate_mesh(dtm, image, image_path):
     # prepare points
     points = np.zeros(shape=(W * H, 3), dtype="float32")
     colors = np.zeros(shape=(W * H, 3), dtype="float32")
     for i in range(H):
         for j in range(W):
-            points[i * H + j, 0] = j
+            points[i * H + j, 0] = abs(j - 512)
             points[i * H + j, 1] = i
             points[i * H + j, 2] = dtm[i, j]
             colors[i * H + j, :3] = image[i, j]
@@ -41,7 +41,7 @@ def generate_mesh(dtm, image, image_path, quality):
     pcd.estimate_normals()
     pcd.orient_normals_to_align_with_direction()
     # surface reconstruction
-    mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=quality + 4, n_threads=1)[0]
+    mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=7, n_threads=1)[0]
     # mesh transformations
     rotation = mesh.get_rotation_matrix_from_xyz((np.pi, 0, 0))
     mesh.rotate(rotation, center=(0, 0, 0))
@@ -57,7 +57,7 @@ def generate_mesh(dtm, image, image_path, quality):
     return out_path
 
 
-def predict(image_path, quality):
+def predict(image_path):
     image_path = Path(image_path)
     pil_image = Image.open(image_path).convert("L")
     # transform image to torch
@@ -71,7 +71,7 @@ def predict(image_path, quality):
     pred_dtm = pred_dtm.max() - pred_dtm
     # create 3d model
     image_scaled = np.asarray(pil_image) / 255.0
-    obj_path = generate_mesh(pred_dtm, image_scaled, image_path, quality)
+    obj_path = generate_mesh(pred_dtm, image_scaled, image_path)
 
     # return correct image
     fig, ax = plt.subplots()
@@ -90,14 +90,13 @@ model = load_model(pretrained_path)
 
 title = "Mars DTM Estimation"
 description = "This demo predicts a DTM from an image of the martian surface. Then, by using a surface reconstruction " \
-              "algorithm, the 3D model is generated and it can also be downloaded. The 3D model requires some time to be rendered by the browser."
+                "algorithm, the 3D model is generated and it can also be downloaded."
 examples = [[f"examples/{name}", 3] for name in sorted(os.listdir("examples"))]
 
 iface = gr.Interface(
     fn=predict,
     inputs=[
-        gr.Image(type="filepath", label="Input Image"),
-        gr.Slider(1, 5, step=1, value=3, label='Mesh quality')
+        gr.Image(type="filepath", label="Input Image", height=512, width=512, sources=["upload"])
     ],
     outputs=[
         gr.Image(label="DTM"),
@@ -108,5 +107,4 @@ iface = gr.Interface(
     cache_examples=False,
     title=title,
     description=description
-)
-iface.launch(share=True)
+).launch()
