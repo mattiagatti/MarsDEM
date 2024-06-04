@@ -10,5 +10,6 @@ def initialize():
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--accelerator", type=str, default="gpu", choices=["cpu", "gpu", "tpu", "ipu"], help="cpu or gpu")
     parser.add_argument("--devices", type=str, default=1, help="number of accelerators to use")
+    parser.add_argument("--train", type=bool, default=True, help="if false perform test")
     return parser
 
