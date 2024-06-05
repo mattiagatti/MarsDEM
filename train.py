@@ -32,7 +32,7 @@ if __name__ == "__main__":
     model = Model(max_depth=700.0)
     datamodule = HiRISEDataModule(data_dir=args.data_dir, batch_size=args.batch_size)
 
-    if args.train:
+    if not args.test:
         trainer.fit(
             model=model,
             datamodule=datamodule,
@@ -45,4 +45,5 @@ if __name__ == "__main__":
             ckpt_path=args.ckpt_path
         )
 
-# nohup python train.py --model glpdepth --data_dir /home/super/datasets-nas/HiRISE --batch_size 8 > train.log 2>&1 &
+# nohup python train.py --data_dir /home/super/datasets-nas/HiRISE --batch_size 2 > train.log 2>&1 &
+# python train.py --test --data_dir /home/super/datasets-nas/HiRISE --ckpt_path /home/super/mgatti/MarsDEM/pretrained/best_model.ckpt --batch_size 8

@@ -1,7 +1,7 @@
 FROM python:3.11-slim-buster
 LABEL org.opencontainers.image.source=https://github.com/mattiagatti/MarsDEM
 WORKDIR /python-docker
-COPY . /python-docker/
+COPY .. /python-docker/
 RUN apt-get update && apt-get install --no-install-recommends -y \
     libegl1 \
     libgl1 \
