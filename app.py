@@ -107,4 +107,4 @@ iface = gr.Interface(
     cache_examples=False,
     title=title,
     description=description
-).launch()
+).launch(server_name="0.0.0.0", server_port=8080)

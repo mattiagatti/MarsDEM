@@ -8,6 +8,4 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install -r app_requirements.txt
-EXPOSE 7860
-ENV GRADIO_SERVER_NAME="0.0.0.0"
 CMD [ "python", "app.py"]
