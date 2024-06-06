@@ -55,5 +55,5 @@ docker build -f ./API_App/Dockerfile --tag marsdem .
 Download and run last uploaded image
 ``` console
 docker pull ghcr.io/mattiagatti/marsdem:latest
-docker run -d -p 7860:7860 ghcr.io/mattiagatti/marsdem:latest
+docker run -p 8080:8080 ghcr.io/mattiagatti/marsdem:latest
 ```
